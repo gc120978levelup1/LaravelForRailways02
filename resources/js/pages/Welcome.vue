@@ -138,7 +138,7 @@ import { Head, Link } from '@inertiajs/vue3';
                         <!--div
                         class="absolute inset-0 rounded-t-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] lg:overflow-hidden lg:rounded-r-lg lg:rounded-t-none" /-->
                         <video autoplay muted loop class="w-[100%]">
-                            <source src="/DT.mp4" type="video/mp4">
+                            <source src="/dt.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
