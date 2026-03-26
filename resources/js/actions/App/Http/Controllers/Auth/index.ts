@@ -1,5 +1,6 @@
 import GoogleController from './GoogleController'
 import FacebookController from './FacebookController'
+import LinkedInController from './LinkedInController'
 import RegisteredUserController from './RegisteredUserController'
 import AuthenticatedSessionController from './AuthenticatedSessionController'
 import PasswordResetLinkController from './PasswordResetLinkController'
@@ -11,6 +12,7 @@ import ConfirmablePasswordController from './ConfirmablePasswordController'
 const Auth = {
     GoogleController: Object.assign(GoogleController, GoogleController),
 FacebookController: Object.assign(FacebookController, FacebookController),
+LinkedInController: Object.assign(LinkedInController, LinkedInController),
 RegisteredUserController: Object.assign(RegisteredUserController, RegisteredUserController),
 AuthenticatedSessionController: Object.assign(AuthenticatedSessionController, AuthenticatedSessionController),
 PasswordResetLinkController: Object.assign(PasswordResetLinkController, PasswordResetLinkController),

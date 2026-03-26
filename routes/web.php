@@ -20,6 +20,10 @@ use App\Http\Controllers\Auth\FacebookController;
 Route::get('login/facebook', [FacebookController::class, 'redirectToFacebook'])->name('facebook.login');
 Route::get('login/facebook/callback', [FacebookController::class, 'handleFacebookCallback']);
 
+use App\Http\Controllers\Auth\LinkedInController;
+Route::get('login/linkedin', [LinkedInController::class, 'redirectToLinkedIn'])->name('linkedin.login');
+Route::get('login/linkedin/callback', [LinkedInController::class, 'handleLinkedInCallback']);
+
 use App\Http\Controllers\ComplaintController;
 Route::middleware('auth')->group(function () {
   Route::get ('/complaint', [ComplaintController::class, 'index'])->name('complaint.index');

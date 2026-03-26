@@ -74,21 +74,26 @@ const submit = () => {
                 Don't have an account?
                 <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
             </div>
-            <div class="flex flex-row gap-5">
+            <div class="flex flex-col md:flex-row gap-5">
                 <a :href="route('google.login')"
-                    class="shadow-sm hover:shadow-green-900 border border-green-900 flex flex-row gap-2 btn btn-danger p-2 rounded-md">
-                    <div class="m-auto flex flex-row gap-3">
+                    class="shadow-sm hover:shadow-green-900 border border-green-900 flex-1 flex flex-row gap-2 btn btn-danger p-3 rounded-md">
+                    <div class="m-auto flex flex-col gap-3">
                         <img src="/google-logo.jpg" width="30" class=" m-auto rounded-full" /> <span
-                            class="m-auto">Login
-                            with Google</span>
+                            class="m-auto">Google</span>
                     </div>
                 </a>
                 <a :href="route('facebook.login')"
-                    class="shadow-sm hover:shadow-green-900 border border-green-900  flex flex-row gap-2 btn btn-danger p-3 rounded-md">
-                    <div class="m-auto flex flex-row gap-3">
+                    class="shadow-sm hover:shadow-green-900 border border-green-900 flex-1 flex flex-row gap-2 btn btn-danger p-3 rounded-md">
+                    <div class="m-auto flex flex-col gap-3">
                         <img src="/facebook-logo.png" width="30" class=" m-auto rounded-full" /> <span
-                            class="m-auto">Login
-                            with Facebook</span>
+                            class="m-auto">Facebook</span>
+                    </div>
+                </a>
+                <a :href="route('linkedin.login')"
+                    class="shadow-sm hover:shadow-green-900 border border-green-900 flex-1 flex flex-row gap-2 btn btn-danger p-3 rounded-md">
+                    <div class="m-auto flex flex-col justify-items-center gap-3">
+                        <img src="/linkedin.jpg" width="30" class=" m-auto rounded-full" /> <span
+                            class="m-auto">LinkedIn</span>
                     </div>
                 </a>
             </div>
