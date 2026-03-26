@@ -6,10 +6,10 @@ import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { LocateFixed, UtilityPole, Gauge, FileClock, Search, RefreshCw, ScanEye, ArrowDownToLine, GitPullRequestCreate } from 'lucide-vue-next';
+import { LocateFixed, UtilityPole, Aperture, Camera, Search, RefreshCw, ScanEye, ArrowDownToLine, GitPullRequestCreate } from 'lucide-vue-next';
 import {
     Dialog,
-    DialogClose,
+    //DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -42,6 +42,7 @@ import { markRaw } from 'vue';
 import * as fabric from 'fabric'; // Using fabric v6
 const canvasRef = ref(null);
 const fabricCanvas = ref(null);
+
 // on page loaded
 onMounted(() => {
     // Initialize fabric canvas
@@ -58,9 +59,29 @@ onMounted(() => {
         fill: 'red',
     });
     fabricCanvas.value.add(rect);
+
+    // LOAD PRE SAVED license image
+    if (form.value.lic_image_file) {
+        fabric.Image.fromURL(form.value.lic_image_file).then(img => {
+            const ctx = fabricCanvas.value.getContext("2d");
+            //ctx.filter = 'brightness(130%) saturate(0%) contrast(1000%)';
+            ctx.filter = "brightness(" + (2 * form.value.brightness).toString() + "%) saturate(0%) contrast(500%)";
+            img.set({
+                left: 320,
+                top: 300,
+                angle: 0,
+                opacity: 1,
+                scaleX: 1.0, // Sets the horizontal scale to 150%
+                scaleY: 1.3  // Sets the vertical scale to 80%
+            });
+            fabricCanvas.value.add(img);
+            fabricCanvas.value.renderAll();
+        }); // Optional settings;
+    }
+
 });
 
-function blobToBase64(blob) {
+const blobToBase64 = (blob) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
@@ -71,22 +92,25 @@ function blobToBase64(blob) {
 
 const fileChange = (event) => {
     blobToBase64(event.target.files[0]).then(base64URL => {
+        form.value.lic_image_file = base64URL;
         fabric.Image.fromURL(base64URL).then(img => {
             const ctx = fabricCanvas.value.getContext("2d");
-            ctx.filter = 'brightness(80%) saturate(0%) contrast(500%)';
-            img.scale(0.4);
+            //ctx.filter = 'brightness(130%) saturate(0%) contrast(1000%)';
+            ctx.filter = "brightness(" + (2 * form.value.brightness).toString() + "%) saturate(0%) contrast(500%)";
             img.set({
                 left: 320,
-                top: 100,
+                top: 300,
                 angle: 0,
-                opacity: 1
+                opacity: 1,
+                scaleX: 1.0, // Sets the horizontal scale to 150%
+                scaleY: 1.3  // Sets the vertical scale to 80%
             });
             fabricCanvas.value.add(img);
             fabricCanvas.value.renderAll();
 
             // INITIALIZE form when opening new picture
             form.value.license = "";
-            form.value.expiry = "";
+            form.value.expirydate = "";
             form.value.name = "";
             form.value.address = "";
             form.value.birthday = "";
@@ -111,20 +135,36 @@ const eventDateRef = ref(new Date())
 const handleProgress = (event) => {
     progress.value = event;
 }
+
+// when Image Parsing button is clicked
 const handleParse = (event) => {
-    console.log("output ng laravel...........");
     console.log("output ng laravel...........", event);
     progressing.value = false;// show prrogress bar
     handleProcessEnd();
-    form.value.license = event.license_id;
-    form.value.expiry = event.dateexpirydate;
-    form.value.name = event.name;
-    form.value.address = event.address;
-    form.value.birthday = event.birthDate;
-    form.value.nationality = event.nationality;
-    form.value.sex = event.sex;
+    if (event.license_id)
+        if (event.license_id !== "")
+            form.value.license = event.license_id;
+    if (event.expiry)
+        if (event.expiry !== "")
+            form.value.expirydate = event.expiry;
+    if (event.name)
+        if (event.name !== "")
+            form.value.name = event.name;
+    if (event.address)
+        if (event.address !== "")
+            form.value.address = event.address;
+    if (event.birthDate)
+        if (event.birthDate !== "")
+            form.value.birthday = event.birthDate;
+    if (event.nationality)
+        if (event.nationality !== "")
+            form.value.nationality = event.nationality;
+    if (event.sex)
+        if (event.sex !== "")
+            form.value.sex = event.sex;
 }
 
+// scanning of ID in progress
 const handleScanning = () => {
     canvasRef.value.toBlob(blob => {
         // canvas to blob file conversion
@@ -146,10 +186,14 @@ function prettyDate(date: Date) {
 // Trigger this function when process ends
 function handleProcessEnd() {
     open.value = true
-    setTimeout(() => { open.value = false }, 3000) // Auto-dismiss
+    setTimeout(() => { open.value = false }, 2000) // Auto-dismiss
 }
 
 const form = ref({
+    imag_count: 0,
+    id_count: 0,
+    brightness: 0,
+    scale: 0,
     license: "",
     expirydate: "",
     name: "",
@@ -158,11 +202,17 @@ const form = ref({
     nationality: "",
     sex: "xxxxx",
     image_file: null,
+    image_file1: null,
+    image_file2: null,
+    image_file3: null,
+    lic_image_file: null,
+    lic_image_file1: null,
 });
 
 //const form = ref(null);
 // register global variables
 mem.register("mem_LicenseFormData2", form);
+
 
 // form submit
 
@@ -172,12 +222,83 @@ const submit = async () => {
     // convert first the base64 images to blob file before transport
     const base64Response = await fetch(form.value.image_file);
     form_data.image_file = await base64Response.blob();
+    const base64Response1 = await fetch(form.value.lic_image_file);
+    form_data.lic_image_file = await base64Response1.blob();
     // posting form_data to backend database
     //form_data.post(post_complaint().url, {
     //    preserveScroll: true,
     //});
 };
 
+//---------------------------------------- WEBCAM
+import { WebCamUI } from 'vue-camera-lib';
+const img = ref();
+const openLicenseWebCam = ref(false);
+
+const photoTakenLicense = (data) => {
+    blobToBase64(data.blob).then(base64URL => {
+        if (form.value.id_count === 0)
+            form.value.lic_image_file = base64URL
+        else
+            if (form.value.id_count === 1)
+                form.value.lic_image_file1 = base64URL;
+        if (form.value.id_count === 1) form.value.id_count = 0; else form.value.id_count++;
+        // INITIALIZE form when opening new picture
+        //form.value.license = "";
+        //form.value.expirydate = "";
+        //form.value.name = "";
+        //form.value.address = "";
+        //form.value.birthday = "";
+        //form.value.nationality = "";
+        //form.value.sex = "";
+        //form.value.image_file = null;
+        router.visit(canvas.index().url, { method: 'get' }); //go back to visit main
+    });
+}
+
+const photoTaken = (data) => {
+    blobToBase64(data.blob).then(result => {
+        if (form.value.imag_count === 0)
+            form.value.image_file = result
+        else
+            if (form.value.imag_count === 1)
+                form.value.image_file1 = result
+            else
+                if (form.value.imag_count === 2)
+                    form.value.image_file2 = result
+                else
+                    if (form.value.imag_count === 3)
+                        form.value.image_file3 = result;
+        if (form.value.imag_count === 3) form.value.imag_count = 0; else form.value.imag_count++;
+        router.visit(canvas.index().url, { method: 'get' }); //go back to visit main
+    });
+}
+
+//------------------------------------ slider ----------------------------
+
+import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui';
+const handleValueChange = (value: number[]) => {
+    // LOAD PRE SAVED license image
+    if (form.value.lic_image_file) {
+        fabricCanvas.value.clear();
+        fabric.Image.fromURL(form.value.lic_image_file).then(image => {
+            img.value = image;
+            const ctx = fabricCanvas.value.getContext("2d");
+            //ctx.filter = 'brightness(130%) saturate(0%) contrast(1000%)';
+            ctx.filter = "brightness(" + (2 * form.value.brightness).toString() + "%) saturate(0%) contrast(500%)";
+            img.value.set({
+                left: 320,
+                top: 300,
+                angle: 0,
+                opacity: 1,
+                scaleX: 1.0 * (form.value.scale / 50), // Sets the horizontal scale to 150%
+                scaleY: 1.3 * (form.value.scale / 50),  // Sets the vertical scale to 80%
+            });
+            fabricCanvas.value.add(img.value);
+            fabricCanvas.value.renderAll();
+        }); // Optional settings;
+    }
+};
 </script>
 
 <template>
@@ -188,7 +309,7 @@ const submit = async () => {
         <AppContent variant="sidebar" class="relative border-0 text-white bg-neutral-950 rounded-none overflow-y-auto">
             <div class="absolute top-0 h-[100%] w-full bg-neutral-150 ">
                 <div class="flex flex-col w-full h-[100%]  text-white px-4 py-3 gap-2">
-                    <div class="z-150 h-[35px] w-full" />
+                    <div class="z-150 h-[130px] md:h-[35px] w-full" />
                     <div class="flex-1 z-0 w-[100%] overflow-auto">
                         <!-- Main Content Start -->
 
@@ -198,6 +319,7 @@ const submit = async () => {
                                 class="indicator rounded-full block relative w-full h-4 bg-grass9 transition-transform overflow-hidden duration-[660ms] ease-[cubic-bezier(0.65, 0, 0.35, 1)] after:animate-progress after:content-[''] after:absolute after:inset-0  after:bg-[linear-gradient(-45deg,_rgba(255,255,255,0.2)_25%,_transparent_25%,_transparent_50%,_rgba(255,255,255,0.2)_50%,_rgba(255,255,255,0.2)_75%,_transparent_75%,_transparent)] after:bg-[length:30px_30px]"
                                 :style="`transform: translateX(-${100 - progress}%)`" />
                         </ProgressRoot>
+                        <Label>Select Picture File of License</Label>
                         <div class="flex flex-row w-[100%] ">
                             <Button disabled
                                 class=" text-white border border-green-900 w-[50px] h-[40px] rounded-none rounded-tl-lg bg-slate-600">
@@ -220,11 +342,42 @@ const submit = async () => {
                         <div class="flex flex-col md:flex-row gap-1 w-[100%] ">
                             <div v-show="!form.image_file"
                                 class="w-full md:w-3/4 overflow-hidden border border-green-900">
+                                <div class="w-[100%] flex flex-col ">
+                                    <span>Brightness</span>
+                                    <SliderRoot v-model="form.brightness" @update:modelValue="handleValueChange"
+                                        class="relative flex items-center select-none touch-none w-[100%] h-5"
+                                        :max="100" :step="1">
+                                        <SliderTrack class="bg-stone-500/30 relative grow rounded-full h-2">
+                                            <SliderRange class="absolute bg-grass8 rounded-full h-full" />
+                                        </SliderTrack>
+                                        <SliderThumb
+                                            class="block w-6 h-6 bg-white rounded-full hover:bg-stone-50 shadow-sm focus:outline-none focus:shadow-[0_0_0_2px] focus:shadow-grass9"
+                                            aria-label="Volume" />
+                                    </SliderRoot>
+                                </div>
+                                <div class="w-[100%] flex flex-col">
+                                    <span>Scale</span>
+                                    <SliderRoot v-model="form.scale" @update:modelValue="handleValueChange"
+                                        class="relative flex items-center select-none touch-none w-[100%] h-5"
+                                        :max="100" :step="1">
+                                        <SliderTrack class="bg-stone-500/30 relative grow rounded-full h-2">
+                                            <SliderRange class="absolute bg-grass8 rounded-full h-full" />
+                                        </SliderTrack>
+                                        <SliderThumb
+                                            class="block w-6 h-6 bg-white rounded-full hover:bg-stone-50 shadow-sm focus:outline-none focus:shadow-[0_0_0_2px] focus:shadow-grass9"
+                                            aria-label="Volume" />
+                                    </SliderRoot>
+                                </div>
                                 <canvas ref="canvasRef" height="600" width="800" class="!w-[100%] "></canvas>
                             </div>
                             <div v-if="form.image_file"
                                 class=" w-[100%] md:w-3/4 overflow-hidden border border-green-900">
-                                <img class="w-full h-full object-cover object-center" :src="form.image_file" />
+                                <img class="w-full object-cover object-center" :src="form.image_file" />
+                                <img class="w-full object-cover object-center" :src="form.image_file1" />
+                                <img class="w-full object-cover object-center" :src="form.image_file2" />
+                                <img class="w-full object-cover object-center" :src="form.image_file3" />
+                                <img class="w-full" :src="form.lic_image_file" />
+                                <img class="w-full" :src="form.lic_image_file1" />
                             </div>
                             <form @submit.prevent="submit"
                                 class="flex-grow space-y-6 rounded-none border border-green-900">
@@ -313,165 +466,204 @@ const submit = async () => {
             </div>
 
             <!-- Header and Function Buttons Start -->
-            <div class="absolute top-0 flex w-full h-12 px-4 overflow-hidden bottom-2 bg-gray-950">
-                <div class="flex h-12 shrink-0 items-center gap-2 w-[100%]">
-                    <div class="flex items-center gap-2 w-[100%]">
-                        <SidebarTrigger class="-ml-1 text-white" />
-
-                        <template v-if="breadcrumbs.length > 0">
-                            <Breadcrumb>
-                                <BreadcrumbList>
-                                    <template v-for="(item, index) in breadcrumbs" :key="index">
-                                        <BreadcrumbItem>
-                                            <template v-if="index === breadcrumbs.length - 1">
-                                                <BreadcrumbPage>{{ item.title }}</BreadcrumbPage>
-                                            </template>
-                                            <template v-else>
-                                                <BreadcrumbLink :href="item.href">
-                                                    {{ item.title }}
-                                                </BreadcrumbLink>
-                                            </template>
-                                        </BreadcrumbItem>
-                                        <BreadcrumbSeparator v-if="index !== breadcrumbs.length - 1" />
-                                    </template>
-                                </BreadcrumbList>
-                            </Breadcrumb>
-                        </template>
+            <div
+                class="absolute top-0 flex w-full md:h-12 px-4 pb-0 overflow-hidden bg-gray-950 border-b md:border-b-2 md:border-b-slate-500">
+                <div class="flex md:h-12 shrink-0 items-center gap-2 w-[100%]  p-0 ">
+                    <div class="flex flex-col md:flex-row  gap-2 w-[100%] ">
+                        <div class="flex flex-row my-auto">
+                            <SidebarTrigger class="-ml-1 text-white mb-0" />
+                            <template v-if="breadcrumbs.length > 0">
+                                <Breadcrumb class="mt-1">
+                                    <BreadcrumbList>
+                                        <template v-for="(item, index) in breadcrumbs" :key="index">
+                                            <BreadcrumbItem>
+                                                <template v-if="index === breadcrumbs.length - 1">
+                                                    <BreadcrumbPage>{{ item.title }}</BreadcrumbPage>
+                                                </template>
+                                                <template v-else>
+                                                    <BreadcrumbLink :href="item.href">
+                                                        {{ item.title }}
+                                                    </BreadcrumbLink>
+                                                </template>
+                                            </BreadcrumbItem>
+                                            <BreadcrumbSeparator v-if="index !== breadcrumbs.length - 1" />
+                                        </template>
+                                    </BreadcrumbList>
+                                </Breadcrumb>
+                            </template>
+                        </div>
 
                         <!--  Additional Local Menu/Function Buttons-->
-                        <div class="flex gap-2 ml-auto">
+                        <div
+                            class="flex flex-col-reverse md:flex-row gap-2 md:ml-auto mt-auto mb-1 p-0  border-b-2 border-slate-600 md:border-none">
                             <!-- Menu Buttons in top left AppBar Start -->
 
-                            <TooltipProvider>
-                                <TooltipRoot>
-                                    <TooltipTrigger
-                                        class="text-grass11 shadow-blackA7 hover:bg-green3 inline-flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black">
-                                        <Button class=" bg-gray-900 text-blue-200 hover:bg-gray-800"
-                                            @click="router.visit(canvas.index().url, { method: 'get' })">
-                                            <LocateFixed />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipPortal>
-                                        <TooltipContent
-                                            class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
-                                            :side-offset="5">
-                                            where Am I?
-                                            <TooltipArrow class=" fill-slate-700" :width="8" />
-                                        </TooltipContent>
-                                    </TooltipPortal>
-                                </TooltipRoot>
-                            </TooltipProvider>
-
-                            <TooltipProvider>
-                                <TooltipRoot>
-                                    <TooltipTrigger
-                                        class="text-grass11 shadow-blackA7 hover:bg-green3 inline-flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black">
-                                        <Button class=" bg-gray-900 text-blue-200 hover:bg-gray-800"
-                                            @click="router.visit(canvas.create().url, { method: 'get' })">
-                                            <UtilityPole />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipPortal>
-                                        <TooltipContent
-                                            class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
-                                            :side-offset="5">
-                                            Check out this Place ...
-                                            <TooltipArrow class=" fill-slate-700" :width="8" />
-                                        </TooltipContent>
-                                    </TooltipPortal>
-                                </TooltipRoot>
-                            </TooltipProvider>
-
-                            <TooltipProvider>
-                                <TooltipRoot>
-                                    <TooltipTrigger
-                                        class="text-grass11 shadow-blackA7 hover:bg-green3 inline-flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black">
-                                        <Button class=" bg-gray-900 text-blue-200 hover:bg-gray-800"
-                                            @click="showAllCustomersHere()">
-                                            <Gauge />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipPortal>
-                                        <TooltipContent
-                                            class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
-                                            :side-offset="5">
-                                            Customers
-                                            <TooltipArrow class=" fill-slate-700" :width="8" />
-                                        </TooltipContent>
-                                    </TooltipPortal>
-                                </TooltipRoot>
-                            </TooltipProvider>
-
-                            <TooltipProvider>
-                                <TooltipRoot>
-                                    <TooltipTrigger
-                                        class="text-grass11 shadow-blackA7 hover:bg-green3 inline-flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black">
-                                        <!-- Dialog Start -->
-                                        <Dialog>
-                                            <DialogTrigger as-child>
-                                                <Button class=" bg-gray-900 text-blue-200 hover:bg-gray-800">
-                                                    <FileClock />
-                                                </Button>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>
-                                                        Search History
-                                                    </DialogTitle>
-                                                    <DialogDescription>
-                                                        Lists of past searches ...
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                                <!------------------------ BODY STARTS ----------------------------->
-                                                <div
-                                                    class="w-[100%] max-h-[300px] overflow-auto grid grid-flow-row-dense grid-cols-4 gap-2">
-
-                                                    <div v-for="(searchkey) in searchList" :key="searchkey.id">
-                                                        <div class="p-0 border bg-light rounded">
-                                                            <DialogClose as-child>
-                                                                <Button @click="searchkeyClick(searchkey.string_value)"
-                                                                    class="bg-gray-900 text-blue-200 hover:bg-gray-800 flex-col p-3">
-                                                                    <p><b>{{ searchkey.string_value }}</b></p>
-                                                                    <span style="font-size: 10px;">
-                                                                        {{ searchkey.data }}
-                                                                    </span>
-                                                                </Button>
-                                                            </DialogClose>
-                                                        </div>
-                                                    </div>
-
+                            <!-- Tab Menu -->
+                            <div class="flex flex-row gap-2">
+                                <div class="ml-auto"></div>
+                                <TooltipProvider>
+                                    <TooltipRoot>
+                                        <!-- Selected Tab Class can also remove @click-->
+                                        <TooltipTrigger
+                                            class="text-grass11 shadow-blackA7  inline-flex h-[45px]  items-center justify-center rounded-none bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black mb-0 mt-2 rounded-t-sm border border-slate-500 border-b-4 md:border-b-8 border-b-red-900">
+                                            <button disabled class="  text-blue-200 p-2"
+                                                @click="router.visit(canvas.index().url, { method: 'get' })">
+                                                <div class="flex flex-row gap-2">
+                                                    <LocateFixed /> <span>New Account</span>
                                                 </div>
-                                                <!------------------------- BODY ENDS ----------------------------->
-                                                <DialogFooter>
-                                                    <Input class=" shadow-red-800" v-show="showConfirmDelete"
-                                                        v-model="deleteAll"
-                                                        placeholder='Type in "delete all" to confirm'></Input>
-                                                    <Button variant="destructive" @click="confirmClearClick()">
-                                                        Clear All
-                                                    </Button>
-                                                </DialogFooter>
-                                            </DialogContent>
-                                        </Dialog>
-                                        <!-- Dialog Ended -->
-                                    </TooltipTrigger>
-                                    <TooltipPortal>
-                                        <TooltipContent
-                                            class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
-                                            :side-offset="5">
-                                            Search history
-                                            <TooltipArrow class=" fill-slate-700" :width="8" />
-                                        </TooltipContent>
-                                    </TooltipPortal>
-                                </TooltipRoot>
-                            </TooltipProvider>
+                                            </button>
+                                        </TooltipTrigger>
+                                        <TooltipPortal>
+                                            <TooltipContent
+                                                class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
+                                                :side-offset="5">
+                                                Make a new account
+                                                <TooltipArrow class=" fill-slate-700" :width="8" />
+                                            </TooltipContent>
+                                        </TooltipPortal>
+                                    </TooltipRoot>
+                                </TooltipProvider>
 
-                            <!-- Dialog with Tooltip -->
-                            <div class="flex ml-2">
-                                <Button class=" rounded-2xl rounded-r-none bg-gray-900 text-blue-200 hover:bg-gray-800"
-                                    @click="customerSearch()">
-                                    <Search />
-                                </Button>
-                                <Input class=" rounded-l-none" placeholder="Search" />
+                                <TooltipProvider>
+                                    <TooltipRoot>
+                                        <!-- Non Selected Tab Class can also remove @click-->
+                                        <TooltipTrigger
+                                            class="text-grass11 shadow-blackA7 hover:bg-slate-600 inline-flex h-[40px] items-center justify-center rounded-none bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black mb-0 mt-2 rounded-t-sm border-2 border-blue-950">
+                                            <button class="  text-blue-200 mb-0 p-2"
+                                                @click="router.visit(canvas.create().url, { method: 'get' })">
+                                                <div class="flex flex-row gap-2">
+                                                    <UtilityPole /> <span>Index</span>
+                                                </div>
+                                            </button>
+                                        </TooltipTrigger>
+
+                                        <TooltipPortal>
+                                            <TooltipContent
+                                                class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
+                                                :side-offset="5">
+                                                Search and Find an Existing Account
+                                                <TooltipArrow class=" fill-slate-700" :width="8" />
+                                            </TooltipContent>
+                                        </TooltipPortal>
+                                    </TooltipRoot>
+                                </TooltipProvider>
+                            </div>
+
+                            <!-- Function Button Menu -->
+                            <div class=" flex flex-row md:border-l md:border-blue-800 pl-3 pt-1">
+                                <TooltipProvider>
+                                    <TooltipRoot>
+                                        <TooltipTrigger
+                                            class="text-grass11 shadow-blackA7 hover:bg-green3 inline-flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black">
+                                            <!-- Dialog Start -->
+                                            <Dialog ref="licensePhotoDialog" class="m-w-[600px]"
+                                                v-model:open="openLicenseWebCam">
+                                                <DialogTrigger as-child>
+                                                    <Button class=" bg-gray-900 text-blue-200 hover:bg-gray-800">
+                                                        <Aperture />
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent class="m-w-[600px]">
+                                                    <DialogHeader>
+                                                        <DialogTitle>
+                                                            Take Photo of License
+                                                        </DialogTitle>
+                                                        <DialogDescription>
+                                                            Make your license readable ...
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <!------------------------ BODY STARTS ----------------------------->
+                                                    <div>
+
+                                                        <WebCamUI :fullscreenState="false"
+                                                            @photoTaken="photoTakenLicense"
+                                                            class="w-[100%] text-black" />
+
+                                                    </div>
+                                                    <!------------------------- BODY ENDS ----------------------------->
+                                                    <DialogFooter>
+                                                        <Input class=" shadow-red-800" v-show="showConfirmDelete"
+                                                            v-model="deleteAll"
+                                                            placeholder='Type in "delete all" to confirm'></Input>
+                                                        <Button variant="destructive" @click="confirmClearClick()">
+                                                            Clear All
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
+                                            <!-- Dialog Ended -->
+                                        </TooltipTrigger>
+                                        <TooltipPortal>
+                                            <TooltipContent
+                                                class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
+                                                :side-offset="5">
+                                                Take a photo of your license to register an account
+                                                <TooltipArrow class=" fill-slate-700" :width="8" />
+                                            </TooltipContent>
+                                        </TooltipPortal>
+                                    </TooltipRoot>
+                                </TooltipProvider>
+
+                                <TooltipProvider>
+                                    <TooltipRoot>
+                                        <TooltipTrigger
+                                            class="text-grass11 shadow-blackA7 hover:bg-green3 inline-flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-slate-900 shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black">
+                                            <!-- Dialog Start -->
+                                            <Dialog class="m-w-[600px]">
+                                                <DialogTrigger as-child>
+                                                    <Button class=" bg-gray-900 text-blue-200 hover:bg-gray-800">
+                                                        <Camera />
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent class="m-w-[600px]">
+                                                    <DialogHeader>
+                                                        <DialogTitle>
+                                                            Take Photo
+                                                        </DialogTitle>
+                                                        <DialogDescription>
+                                                            Smile at the camera for a better look ...
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <!------------------------ BODY STARTS ----------------------------->
+                                                    <div>
+
+                                                        <WebCamUI :fullscreenState="false" @photoTaken="photoTaken"
+                                                            class="w-[100%] text-black" />
+
+                                                    </div>
+                                                    <!------------------------- BODY ENDS ----------------------------->
+                                                    <DialogFooter>
+                                                        <Input class=" shadow-red-800" v-show="showConfirmDelete"
+                                                            v-model="deleteAll"
+                                                            placeholder='Type in "delete all" to confirm'></Input>
+                                                        <Button variant="destructive" @click="confirmClearClick()">
+                                                            Clear All
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
+                                            <!-- Dialog Ended -->
+                                        </TooltipTrigger>
+                                        <TooltipPortal>
+                                            <TooltipContent
+                                                class="data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade text-grass11 select-none rounded-[4px] bg-gray-300 px-[15px] py-[10px] text-[15px] leading-none shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] will-change-[transform,opacity]"
+                                                :side-offset="5">
+                                                Take a portrait Photo
+                                                <TooltipArrow class=" fill-slate-700" :width="8" />
+                                            </TooltipContent>
+                                        </TooltipPortal>
+                                    </TooltipRoot>
+                                </TooltipProvider>
+
+                                <!-- Search Function button and input text-->
+                                <div class="flex flex-row ml-2 w-[100%]">
+                                    <Button
+                                        class=" rounded-2xl rounded-r-none bg-gray-900 text-blue-200 hover:bg-gray-800"
+                                        @click="customerSearch()">
+                                        <Search />
+                                    </Button>
+                                    <Input class=" h-[30px] rounded-l-none mt-1 flex-grow" placeholder="Search" />
+                                </div>
                             </div>
 
                             <!-- Menu Buttons in top left AppBar Ended -->
