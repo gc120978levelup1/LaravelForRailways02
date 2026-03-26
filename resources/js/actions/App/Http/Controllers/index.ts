@@ -1,3 +1,4 @@
+import MailController from './MailController'
 import Auth from './Auth'
 import ComplaintController from './ComplaintController'
 import MapController from './MapController'
@@ -8,7 +9,8 @@ import TakePhotoController from './TakePhotoController'
 import CanvasController from './CanvasController'
 import Settings from './Settings'
 const Controllers = {
-    Auth: Object.assign(Auth, Auth),
+    MailController: Object.assign(MailController, MailController),
+Auth: Object.assign(Auth, Auth),
 ComplaintController: Object.assign(ComplaintController, ComplaintController),
 MapController: Object.assign(MapController, MapController),
 FaceRecogController: Object.assign(FaceRecogController, FaceRecogController),
