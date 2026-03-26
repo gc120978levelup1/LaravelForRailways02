@@ -222,8 +222,9 @@ const submit = async () => {
                                 class="w-full md:w-3/4 overflow-hidden border border-green-900">
                                 <canvas ref="canvasRef" height="600" width="800" class="!w-[100%] "></canvas>
                             </div>
-                            <div v-if="form.image_file" class="w-full md:w-3/4 overflow-hidden border border-green-900">
-                                <img class="h-[100%]" :src="form.image_file" />
+                            <div v-if="form.image_file"
+                                class=" w-[100%] md:w-3/4 overflow-hidden border border-green-900">
+                                <img class="w-full h-full object-cover object-center" :src="form.image_file" />
                             </div>
                             <form @submit.prevent="submit"
                                 class="flex-grow space-y-6 rounded-none border border-green-900">
