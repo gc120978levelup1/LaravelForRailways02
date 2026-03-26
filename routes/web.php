@@ -21,8 +21,14 @@ Route::get('login/facebook', [FacebookController::class, 'redirectToFacebook'])-
 Route::get('login/facebook/callback', [FacebookController::class, 'handleFacebookCallback']);
 
 use App\Http\Controllers\Auth\LinkedInController;
-Route::get('login/linkedin', [LinkedInController::class, 'redirectToLinkedIn'])->name('linkedin.login');
+#Route::get('login/linkedin', [LinkedInController::class, 'redirectToLinkedIn'])->name('linkedin.login');
 Route::get('login/linkedin/callback', [LinkedInController::class, 'handleLinkedInCallback']);
+
+use Laravel\Socialite\Facades\Socialite;
+Route::get('login/linkedin', function () {
+    return Socialite::driver('linkedin')->redirect();
+})->name('linkedin.login');
+
 
 use App\Http\Controllers\ComplaintController;
 Route::middleware('auth')->group(function () {

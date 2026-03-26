@@ -1,7 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 /**
-* @see \App\Http\Controllers\Auth\LinkedInController::login
- * @see app/Http/Controllers/Auth/LinkedInController.php:9
+ * @see routes/web.php:28
  * @route '/login/linkedin'
  */
 export const login = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -15,8 +14,7 @@ login.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\Auth\LinkedInController::login
- * @see app/Http/Controllers/Auth/LinkedInController.php:9
+ * @see routes/web.php:28
  * @route '/login/linkedin'
  */
 login.url = (options?: RouteQueryOptions) => {
@@ -24,8 +22,7 @@ login.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\Auth\LinkedInController::login
- * @see app/Http/Controllers/Auth/LinkedInController.php:9
+ * @see routes/web.php:28
  * @route '/login/linkedin'
  */
 login.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -33,8 +30,7 @@ login.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
-* @see \App\Http\Controllers\Auth\LinkedInController::login
- * @see app/Http/Controllers/Auth/LinkedInController.php:9
+ * @see routes/web.php:28
  * @route '/login/linkedin'
  */
 login.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({

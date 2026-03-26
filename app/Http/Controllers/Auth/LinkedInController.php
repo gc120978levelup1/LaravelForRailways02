@@ -1,16 +1,19 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+
 class LinkedInController extends Controller
 {
     public function redirectToLinkedIn()
     {
         return Socialite::driver('linkedin')->redirect();
     }
-    public function handleLinkedInCallback()
+
+    public function handleLinkedIneCallback()
     {
         try {
             $googleUser = Socialite::driver('linkedin')->user();
