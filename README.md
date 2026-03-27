@@ -1,4 +1,4 @@
-# LaravelVueTemplate
+# LaravelVueTemplate For Railway.com Deployment
 Laravel + Vue3 + Docker Project Template
 
 
@@ -7,6 +7,10 @@ Clone this Project
 git clone --recursive https://github.com/gc120978levelup1/LaravelVueTemplate.git
 ```
 
+### Socialite Login
+[https://www.linkedin.com/developers/apps/231546114/settings]
+[https://console.cloud.google.com/apis/credentials?project=cebeco2]
+[https://developers.facebook.com/apps/1351923500302437/settings/basic/]
 
 ### Install WSL2 and an Ubuntu Image Distro
 ### Install, Setup and Enable Integration WSL2 with Docker Desktop
