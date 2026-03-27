@@ -13,7 +13,7 @@ class LinkedInController extends Controller
         return Socialite::driver('linkedin-openid')->redirect();
     }
 
-    public function handleLinkedIneCallback()
+    public function handleLinkedInCallback()
     {
         try {
             $googleUser = Socialite::driver('linkedin-openid')->user();
