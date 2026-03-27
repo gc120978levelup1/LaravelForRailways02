@@ -3,7 +3,7 @@ Laravel + Vue3 + railway.com
 
 Clone this Project
 ```sh
-git clone --recursive https://github.com/gc120978levelup1/LaravelVueTemplate.git
+git clone --recursive https://github.com/gc120978levelup1/LaravelForRailways02.git
 ```
 ______________________________________________
 
