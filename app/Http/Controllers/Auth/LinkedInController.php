@@ -10,13 +10,13 @@ class LinkedInController extends Controller
 {
     public function redirectToLinkedIn()
     {
-        return Socialite::driver('linkedin')->redirect();
+        return Socialite::driver('linkedin-openid')->redirect();
     }
 
     public function handleLinkedIneCallback()
     {
         try {
-            $googleUser = Socialite::driver('linkedin')->user();
+            $googleUser = Socialite::driver('linkedin-openid')->user();
 
             // Find or create the user in your database
             $user = User::firstOrCreate([

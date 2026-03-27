@@ -26,7 +26,7 @@ Route::get('login/linkedin/callback', [LinkedInController::class, 'handleLinkedI
 
 use Laravel\Socialite\Facades\Socialite;
 Route::get('login/linkedin', function () {
-    return Socialite::driver('linkedin')->redirect();
+    return Socialite::driver('linkedin-openid')->redirect();
 })->name('linkedin.login');
 
 
