@@ -1,22 +1,34 @@
 # LaravelVueTemplate For Railway.com Deployment
-Laravel + Vue3 + Docker Project Template
-
+Laravel + Vue3 + railway.com
 
 Clone this Project
 ```sh
-git clone --recursive https://github.com/gc120978levelup1/LaravelVueTemplate.git
+git clone --recursive https://github.com/gc120978levelup1/LaravelForRailways02.git
 ```
+______________________________________________
 
-### Socialite Login
-[https://www.linkedin.com/developers/apps/231546114/settings]
-[https://console.cloud.google.com/apis/credentials?project=cebeco2]
-[https://developers.facebook.com/apps/1351923500302437/settings/basic/]
+### Railway.com (Sign-in Using Github)
+
+(Dashboard)[https://railway.com/project/b190df8f-22c6-4a45-b2cb-c5621c2c6d8a?]
+
+(Webapp)[https://cebeco2.up.railway.app]
+
+______________________________________________
+
+### Socialite OAuth 2.0 Login Dashboard
+
+(linkedin-openid)[https://www.linkedin.com/developers/apps/231546114/settings]
+
+(google)[https://console.cloud.google.com/apis/credentials?project=cebeco2]
+
+(facebook)[https://developers.facebook.com/apps/4192158944448283]
+
+______________________________________________
 
 ### Install WSL2 and an Ubuntu Image Distro
 ### Install, Setup and Enable Integration WSL2 with Docker Desktop
 
-
-Install laravel and node ddependencies
+Cleanup Docker, Install laravel and node dependencies
 ```sh
 docker ps -aq | xargs docker stop | xargs docker rm
 docker system prune -f
