@@ -21,12 +21,12 @@ import { TooltipArrow, TooltipContent, TooltipPortal, TooltipProvider, TooltipRo
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import employee from '@/routes/employee';
+//import employee as emp from '@/routes/employee';
 import type { BreadcrumbItem as bc } from '@/types';
 
-// Props Declaration
+// Props Declaration / receive data from server
 interface Props {
-    complaint: object,
+    employee: object,
 }
 
 const props = defineProps<Props>();
@@ -50,6 +50,13 @@ const form = ref({
     id2_type: "",
     id3_number: "",
     id3_type: "",
+    image_emp_file1: null,
+    image_emp_file2: null,
+    image_emp_file3: null,
+    image_emp_file4: null,
+    image_id_file1: null,
+    image_id_file2: null,
+    image_id_file3: null,
 });
 const form2 = ref({
     image_emp_file1: null,
@@ -74,15 +81,15 @@ const form8 = ref({
 });
 
 // globalizing form.value as "employee/create"
-import mem from '@/extra/mem.js';
-mem.register("employee/create1", form);
-mem.register("employee/create2", form2);
-mem.register("employee/create3", form3);
-mem.register("employee/create4", form4);
-mem.register("employee/create5", form5);
-mem.register("employee/create6", form6);
-mem.register("employee/create7", form7);
-mem.register("employee/create8", form8);
+//import mem from '@/extra/mem.js';
+//mem.register("employee/create1", form);
+//mem.register("employee/create2", form2);
+//mem.register("employee/create3", form3);
+//mem.register("employee/create4", form4);
+//mem.register("employee/create5", form5);
+//mem.register("employee/create6", form6);
+//mem.register("employee/create7", form7);
+//mem.register("employee/create8", form8);
 
 // form submit
 const submit = async () => {
@@ -121,6 +128,7 @@ const submit = async () => {
 onMounted(() => {
     // Read data from server
     form.value = props.employee;
+    console.log(props.employee);
 });
 
 // Start of other import

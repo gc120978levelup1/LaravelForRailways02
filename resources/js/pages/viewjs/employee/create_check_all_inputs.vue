@@ -6,7 +6,7 @@ import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { LocateFixed, UtilityPole, Aperture, Camera, Search, RefreshCw, ArrowRightToLine,Database,  ArrowRightFromLine, ArrowLeftFromLine } from 'lucide-vue-next';
+import { LocateFixed, UtilityPole, Aperture, Camera, Search, RefreshCw, ArrowRightToLine, Database, ArrowRightFromLine, ArrowLeftFromLine } from 'lucide-vue-next';
 import {
     Dialog,
     //DialogClose,
@@ -43,6 +43,13 @@ const form = ref({
     id2_type: "",
     id3_number: "",
     id3_type: "",
+    image_emp_file1: null,
+    image_emp_file2: null,
+    image_emp_file3: null,
+    image_emp_file4: null,
+    image_id_file1: null,
+    image_id_file2: null,
+    image_id_file3: null,
 });
 const form2 = ref({
     image_emp_file1: null,
@@ -78,10 +85,29 @@ mem.register("employee/create7", form7);
 mem.register("employee/create8", form8);
 
 // form submit
-const submit = async () => {
+const submit = () => {
     loading.value = true;
     // initialize Form_data for posting
-    const form_data = useForm(form.value);
+    const form_data = useForm({
+        license: form.value.license,
+        expirydate: form.value.expirydate,
+        name: form.value.name,
+        address: form.value.address,
+        birthday: form.value.birthday,
+        nationality: form.value.nationality,
+        sex: form.value.sex,
+        id2_number: form.value.id2_number,
+        id2_type: form.value.id2_type,
+        id3_number: form.value.id3_number,
+        id3_type: form.value.id3_type,
+        //image_emp_file1: null,
+        //image_emp_file2: null,
+        // image_emp_file3: null,
+        //image_emp_file4: null,
+        image_id_file1: form.value.image_id_file1,
+        //image_id_file2: null,
+        //image_id_file3: null,
+    });
     // posting form_data to backend database
     form_data.post(employee.post().url, {
         preserveScroll: true,
@@ -317,7 +343,8 @@ const photoTaken = (data) => {
                             <div class="ml-auto"></div>
                             <Button class="hover:shadow  hover:shadow-cyan-500 p-6 mr-3" @click="submit">
                                 Accept & Save
-                                <ArrowRightToLine /><Database/>
+                                <ArrowRightToLine />
+                                <Database />
                             </Button>
 
                             <Button Disabled class=" bg-blue-700 hover:text-blue-900 text-white p-6 mr-5"
@@ -543,7 +570,8 @@ const photoTaken = (data) => {
             <!-- Header and Function Buttons Ended -->
         </AppContent>
     </AppShell>
-    <div v-show="loading" class="absolute top-0 flex w-full h-full bg-gray-950 opacity-80 z-6000"><!-- opacity-80 blur-lg">-->
+    <div v-show="loading" class="absolute top-0 flex w-full h-full bg-gray-950 opacity-80 z-6000">
+        <!-- opacity-80 blur-lg">-->
         <span class="m-auto animate-spin">
             <RefreshCw :size="250" />
         </span>

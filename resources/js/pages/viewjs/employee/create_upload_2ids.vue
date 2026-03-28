@@ -23,6 +23,12 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import employee from '@/routes/employee';
 import type { BreadcrumbItem as bc } from '@/types';
+// Props Declaration / receive data from server
+
+interface Props {
+    employee: object,
+}
+const props = defineProps<Props>();
 
 // form.value initialization
 const form = ref({
@@ -88,20 +94,7 @@ mem.register("employee/create8", form8);
 // on page loaded
 onMounted(() => {
     // Initialize fabric canvas
-    fabricCanvas.value = markRaw(new fabric.Canvas(canvasRef.value, {
-        backgroundColor: '#111',
-    }));
-
-    // Add a sample shape
-    const rect = new fabric.Rect({
-        top: 100,
-        left: 100,
-        width: 60,
-        height: 60,
-        fill: 'red',
-    });
-    fabricCanvas.value.add(rect);
-
+    form.value = {...form.value, ...props.employee}; //merge
 });
 
 // Start of other import
@@ -194,19 +187,47 @@ function prettyDate(date: Date) {
 
 // form submit
 
-const submit = async () => {
+// form submit
+const gotoNextPage = () => {
+    loading.value = true;
+    const form_data = useForm(form.value);
+    form_data.post(employee.update_create_upload_2ids({id:form_data.id}).url, {
+        preserveScroll: true,
+    });
+};
+
+const submit = () => {
+    loading.value = true;
     // initialize Form_data for posting
     const form_data = useForm(form.value);
-    // convert first the base64 images to blob file before transport
-    const base64Response = await fetch(form.value.image_file);
-    form_data.image_file = await base64Response.blob();
-    const base64Response1 = await fetch(form.value.lic_image_file);
-    form_data.lic_image_file = await base64Response1.blob();
+    /*
+    const form_data = useForm({
+        license: form.value.license,
+        expirydate: form.value.expirydate,
+        name: form.value.name,
+        address: form.value.address,
+        birthday: form.value.birthday,
+        nationality: form.value.nationality,
+        sex: form.value.sex,
+        id2_number: form.value.id2_number,
+        id2_type: form.value.id2_type,
+        id3_number: form.value.id3_number,
+        id3_type: form.value.id3_type,
+        //image_emp_file1: null,
+        //image_emp_file2: null,
+        // image_emp_file3: null,
+        //image_emp_file4: null,
+        image_id_file1: form.value.image_id_file1,
+        //image_id_file2: null,
+        //image_id_file3: null,
+    });
+    */
     // posting form_data to backend database
-    //form_data.post(post_complaint().url, {
-    //    preserveScroll: true,
-    //});
+    form_data.post(employee.post().url, {
+        preserveScroll: true,
+    });
 };
+
 
 //---------------------------------------- WEBCAM
 import { WebCamUI } from 'vue-camera-lib';
@@ -273,32 +294,6 @@ const photoTaken = (data) => {
     });
 }
 
-//------------------------------------ slider ----------------------------
-
-import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui';
-const handleValueChange = () => {
-    // LOAD PRE SAVED license image
-    if (form6.value.image_id_file1) {
-        fabricCanvas.value.clear();
-        fabric.Image.fromURL(form6.value.image_id_file1).then(image => {
-            img.value = image;
-            const ctx = fabricCanvas.value.getContext("2d");
-            //ctx.filter = 'brightness(130%) saturate(0%) contrast(1000%)';
-            ctx.filter = "brightness(" + (2 * form.value.brightness).toString() + "%) saturate(0%) contrast(500%)";
-            img.value.set({
-                left: 320,
-                top: 300,
-                angle: 0,
-                opacity: 1,
-                scaleX: 1.0 * (form.value.scale / 50), // Sets the horizontal scale to 150%
-                scaleY: 1.3 * (form.value.scale / 50),  // Sets the vertical scale to 80%
-            });
-            fabricCanvas.value.add(img.value);
-            fabricCanvas.value.renderAll();
-        }); // Optional settings;
-    }
-};
-
 </script>
 
 <template>
@@ -359,7 +354,7 @@ const handleValueChange = () => {
                                 <img class="w-full object-cover object-center" :src="form.image_file3" /-->
                             <div class="flex flex-col md:flex-row w-[100%]">
                                 <img class="w-[100%] md:w-[65%] object-cover object-center"
-                                    :src="form6.image_id_file1" />
+                                    :src="form.image_id_link1" />
                                 <form @submit.prevent="submit"
                                     class="flex-1 sm:w-[400px] space-y-6 rounded-none border border-green-900">
                                     <div class=" flex-auto flex flex-col gap-4 p-4">
@@ -680,6 +675,7 @@ const handleValueChange = () => {
                                         </ToastProvider>
                                     </div>
                                 </form>
+                                <Button @click="submit">xxxxx</Button>
                             </div>
                         </div>
 
@@ -694,7 +690,7 @@ const handleValueChange = () => {
                             </Button>
                             <div class="ml-auto"></div>
                             <Button class=" bg-blue-700 hover:text-blue-900 text-white p-6 mr-5"
-                                @click="router.visit(employee.create_upload_4pics().url, { method: 'get' })">
+                                @click="gotoNextPage">
                                 Next
                                 <ArrowRightFromLine />
                             </Button>
