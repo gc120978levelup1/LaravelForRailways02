@@ -7,6 +7,7 @@ import QxQRGenController from './QxQRGenController'
 import IDScanController from './IDScanController'
 import TakePhotoController from './TakePhotoController'
 import CanvasController from './CanvasController'
+import EmployeeController from './EmployeeController'
 import Settings from './Settings'
 const Controllers = {
     MailController: Object.assign(MailController, MailController),
@@ -18,6 +19,7 @@ QxQRGenController: Object.assign(QxQRGenController, QxQRGenController),
 IDScanController: Object.assign(IDScanController, IDScanController),
 TakePhotoController: Object.assign(TakePhotoController, TakePhotoController),
 CanvasController: Object.assign(CanvasController, CanvasController),
+EmployeeController: Object.assign(EmployeeController, EmployeeController),
 Settings: Object.assign(Settings, Settings),
 }
 

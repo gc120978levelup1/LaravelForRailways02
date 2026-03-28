@@ -15,7 +15,7 @@ import id_scan from '@/routes/id_scan';
 import photo from '@/routes/photo';
 import map from '@/routes/map';
 import canvas from '@/routes/canvas';
-
+import employee from '@/routes/employee';
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
@@ -68,8 +68,8 @@ const mainNavItems: NavItem[] = [
         icon: BookOpen,
     },
     {
-        title: 'Canvas Take Picture',
-        url: canvas.create().url,
+        title: 'New Employee',
+        url: employee.create_scan_license().url,
         icon: BookOpen,
     },
 ];
