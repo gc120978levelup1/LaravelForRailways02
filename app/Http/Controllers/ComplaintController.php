@@ -18,7 +18,7 @@ class ComplaintController extends Controller
     public function index(StoreComplaintRequest $request)
     {
         if ($request["accountnumber"]) { // if index has search parameter
-            $complaint = Complaint::where("accountnumber","like","%". $request["accountnumber"] ."%")->get();
+            $complaint = Complaint::where("accountnumber", "like", "%" . $request["accountnumber"] . "%")->get();
             return Inertia::render('viewjs/complaint/index', [
                 'complaints' => $complaint,
                 'accountnumber' => $request["accountnumber"],
@@ -42,20 +42,17 @@ class ComplaintController extends Controller
      */
     public function store(StoreComplaintRequest $request)
     {
-         // saving and extracting uploaed picture
-         if ($request->hasFile('image_file')) {
+        // saving and extracting uploaed picture
+        if ($request->hasFile('image_file')) {
             $request->merge([
                 // local file upload, VPS
                 'picture' => config('alphaenvironment.LOCAL_URL') . $request->file('image_file')->store(config('alphaenvironment.SUB_FLDR_IMAGES'), 'public'),
             ]);
         }
         $complaint = Complaint::create($request->all());
-        return redirect()->route(
-            'complaint.show',
-            [
-                'complaint' => $complaint
-            ]
-        );
+        return redirect()->route('complaint.show', [
+            'complaint' => $complaint
+        ]);
     }
 
     /**
@@ -63,10 +60,9 @@ class ComplaintController extends Controller
      */
     public function show(Complaint $complaint)
     {
-        return Inertia::render(
-            'viewjs/complaint/show',
-            ['complaint' => $complaint]
-        );
+        return Inertia::render('viewjs/complaint/show', [
+            'complaint' => $complaint
+        ]);
     }
 
     /**
@@ -74,10 +70,9 @@ class ComplaintController extends Controller
      */
     public function edit(Complaint $complaint)
     {
-        return Inertia::render(
-            'viewjs/complaint/edit',
-            ['complaint' => $complaint]
-        );
+        return Inertia::render('viewjs/complaint/edit', [
+            'complaint' => $complaint
+        ]);
     }
 
     /**

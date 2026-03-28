@@ -86,13 +86,15 @@ Route::middleware('auth')->group(function () {
 use App\Http\Controllers\EmployeeController;
 Route::middleware('auth')->group(function () {
     Route::get('employee/create_scan_license', [EmployeeController::class, 'create_scan_license'])->name('employee.create_scan_license');
-    Route::get('employee/create_upload_2ids', [EmployeeController::class, 'create_upload_2ids'])->name('employee.create_upload_2ids');
-    Route::get('employee/create_upload_4pics', [EmployeeController::class, 'create_upload_4pics'])->name('employee.create_upload_4pics');
-    Route::get('employee/create_check_all_inputs', [EmployeeController::class, 'create_check_all_inputs'])->name('employee.create_check_all_inputs');
     Route::post('employee/post', [EmployeeController::class, 'store'])->name('employee.post');
+    Route::get('employee/{employee}/create_upload_2ids', [EmployeeController::class, 'create_upload_2ids'])->name('employee.create_upload_2ids');
+    Route::post('employee/{employee}/update_create_upload_2ids', [EmployeeController::class, 'update_create_upload_2ids'])->name('employee.update_create_upload_2ids');
+    Route::get('employee/{employee}/create_upload_4pics', [EmployeeController::class, 'create_upload_4pics'])->name('employee.create_upload_4pics');
+    Route::post('employee/{employee}/update_create_upload_4pics', [EmployeeController::class, 'update_create_upload_4pics'])->name('employee.update_create_upload_4pics');
     Route::get('employee/{employee}/show', [EmployeeController::class, 'show'])->name('employee.show');
-    Route::get('employee/{employee}/edit', [EmployeeController::class, 'edit'])->name('employee.edit');
+    Route::get('employee/{employee}/edit_scan_license', [EmployeeController::class, 'edit_scan_license'])->name('employee.edit_scan_license');
     Route::post('employee/{employee}/update', [EmployeeController::class, 'update'])->name('employee.update');
+    Route::get('employee/index', [EmployeeController::class, 'index'])->name('employee.index');
 });
 
 require __DIR__ . '/settings.php';

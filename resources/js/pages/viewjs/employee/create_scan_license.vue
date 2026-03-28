@@ -228,19 +228,44 @@ function handleProcessEnd() {
 }
 
 // form submit
+const gotoNextPage = () => {
+    loading.value = true;
+    const form_data = useForm(form.value);
+    form_data.post(employee.post().url, {
+        preserveScroll: true,
+    });
+};
 
-const submit = async () => {
+const submit = () => {
+    loading.value = true;
     // initialize Form_data for posting
     const form_data = useForm(form.value);
-    // convert first the base64 images to blob file before transport
-    const base64Response = await fetch(form.value.image_file);
-    form_data.image_file = await base64Response.blob();
-    const base64Response1 = await fetch(form.value.lic_image_file);
-    form_data.lic_image_file = await base64Response1.blob();
+    /*
+    const form_data = useForm({
+        license: form.value.license,
+        expirydate: form.value.expirydate,
+        name: form.value.name,
+        address: form.value.address,
+        birthday: form.value.birthday,
+        nationality: form.value.nationality,
+        sex: form.value.sex,
+        id2_number: form.value.id2_number,
+        id2_type: form.value.id2_type,
+        id3_number: form.value.id3_number,
+        id3_type: form.value.id3_type,
+        //image_emp_file1: null,
+        //image_emp_file2: null,
+        // image_emp_file3: null,
+        //image_emp_file4: null,
+        image_id_file1: form.value.image_id_file1,
+        //image_id_file2: null,
+        //image_id_file3: null,
+    });
+    */
     // posting form_data to backend database
-    //form_data.post(post_complaint().url, {
-    //    preserveScroll: true,
-    //});
+    form_data.post(employee.post().url, {
+        preserveScroll: true,
+    });
 };
 
 //---------------------------------------- WEBCAM
@@ -359,7 +384,7 @@ const handleValueChange = () => {
                         <!-- Activity Progress Indicator -->
                         <div class=" bg-gray-800 rounded-lg p-2 lg:px-6 flex flex-col mb-6 mx-10 hidden md:block">
                             <div class="w-[100%] border border-b-gray-600 p-3 pb-4">
-                                <span class=" text-xl">Employee License Scan</span>
+                                <span class=" text-xl">Employee License Scan1</span>
                             </div>
                             <div class=" flex flex-col lg:flex-row gap-2 rounded-lg p-2 lg:px-6 lg:pt-6 lg:pb-0">
 
@@ -579,6 +604,7 @@ const handleValueChange = () => {
                                     </ToastProvider>
                                 </div>
                             </form>
+                            <Button @click="submit">xxxxxxxxxxx</Button>
                         </div>
 
                         <div ref="textOutput">
@@ -595,10 +621,17 @@ const handleValueChange = () => {
                                 <ArrowLeftFromLine />Prev
                             </Button>
                             <div class="ml-auto"></div>
+
+                            <Button class=" bg-blue-700 hover:text-blue-900 text-white p-6 mr-5" @click="gotoNextPage">
+                                 Next
+                                <ArrowRightFromLine />
+                            </Button>
+                            <!--
                             <Button class=" bg-blue-700 hover:text-blue-900 text-white p-6 mr-5" @click="router.visit(employee.create_upload_2ids().url, { method: 'get' })">
                                  Next
                                 <ArrowRightFromLine />
                             </Button>
+                            -->
                         </div>
 
                         <br>

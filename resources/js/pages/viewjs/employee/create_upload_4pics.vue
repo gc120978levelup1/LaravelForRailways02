@@ -24,6 +24,10 @@ import { dashboard } from '@/routes';
 import employee from '@/routes/employee';
 import type { BreadcrumbItem as bc } from '@/types';
 
+interface Props {
+    employee: object,
+}
+const props = defineProps<Props>();
 // form.value initialization
 const form = ref({
     //------------------------- local variaables
@@ -87,20 +91,7 @@ mem.register("employee/create8", form8);
 // on page loaded
 onMounted(() => {
     // Initialize fabric canvas
-    fabricCanvas.value = markRaw(new fabric.Canvas(canvasRef.value, {
-        backgroundColor: '#111',
-    }));
-
-    // Add a sample shape
-    const rect = new fabric.Rect({
-        top: 100,
-        left: 100,
-        width: 60,
-        height: 60,
-        fill: 'red',
-    });
-    fabricCanvas.value.add(rect);
-
+    form.value = { ...form.value, ...props.employee }
 });
 
 // Start of other import
@@ -115,11 +106,6 @@ const headTitle = 'Register Employee';
 
 // Refs and Variable Area
 const loading = ref(false);
-
-import { markRaw } from 'vue';
-import * as fabric from 'fabric'; // Using fabric v6
-const canvasRef = ref(null);
-const fabricCanvas = ref(null);
 
 const blobToBase64 = (blob) => {
     return new Promise((resolve, reject) => {
@@ -163,31 +149,61 @@ const fileChangeFile4 = (event) => {
 }
 
 const progress = ref(0);
-const open = ref(false);
 const progressing = ref(false);
 
 
 //-----------------------------------------------------
+const gotoPrevPage = () => {
+    loading.value = true;
+    const form_data = useForm(form.value);
+    form_data.get(employee.create_upload_2ids({ id: form_data.id }).url, {
+        preserveScroll: true,
+    });
+};
+const gotoNextPage = () => {
+    loading.value = true;
+    const form_data = useForm(form.value);
+    form_data.post(employee.update_create_upload_4pics({ id: form_data.id }).url, {
+        preserveScroll: true,
+    });
+};
 
-// form submit
-
-const submit = async () => {
+const submit = () => {
+    loading.value = true;
     // initialize Form_data for posting
     const form_data = useForm(form.value);
-    // convert first the base64 images to blob file before transport
-    const base64Response = await fetch(form.value.image_file);
-    form_data.image_file = await base64Response.blob();
-    const base64Response1 = await fetch(form.value.lic_image_file);
-    form_data.lic_image_file = await base64Response1.blob();
+    /*
+    const form_data = useForm({
+        license: form.value.license,
+        expirydate: form.value.expirydate,
+        name: form.value.name,
+        address: form.value.address,
+        birthday: form.value.birthday,
+        nationality: form.value.nationality,
+        sex: form.value.sex,
+        id2_number: form.value.id2_number,
+        id2_type: form.value.id2_type,
+        id3_number: form.value.id3_number,
+        id3_type: form.value.id3_type,
+        //image_emp_file1: null,
+        //image_emp_file2: null,
+        // image_emp_file3: null,
+        //image_emp_file4: null,
+        image_id_file1: form.value.image_id_file1,
+        //image_id_file2: null,
+        //image_id_file3: null,
+    });
+    */
     // posting form_data to backend database
-    //form_data.post(post_complaint().url, {
-    //    preserveScroll: true,
-    //});
+    form_data.post(employee.post().url, {
+        preserveScroll: true,
+    });
 };
+
 
 //---------------------------------------- WEBCAM
 import { WebCamUI } from 'vue-camera-lib';
-const img = ref();
+
 const openLicenseWebCam1 = ref(false);
 const openLicenseWebCam2 = ref(false);
 const openLicenseWebCam3 = ref(false);
@@ -418,6 +434,7 @@ const photoTaken = (data) => {
 
                                     </div>
                                 </form>
+                                <Button @click="submit">xxxxxxxxxxxxx</Button>
                             </div>
 
 
@@ -708,14 +725,13 @@ const photoTaken = (data) => {
                         <!-- Prev and Next Buttons -->
                         <div class="w-100% flex flex-row">
                             <Button class=" bg-blue-700 hover:text-blue-900 text-white p-6 mr-5"
-                                @click="router.visit(employee.create_upload_2ids().url, { method: 'get' })">
+                                @click="gotoPrevPage">
                                 <ArrowLeftFromLine />Prev
                             </Button>
                             <div class="ml-auto"></div>
                             <Button class=" bg-blue-700 hover:text-blue-900 text-white p-6 mr-5"
-                                @click="router.visit(employee.create_check_all_inputs().url, { method: 'get' })">
-                                Next
-                                <ArrowRightFromLine />
+                                @click="gotoNextPage">
+                                Next<ArrowRightFromLine />
                             </Button>
                         </div>
 
